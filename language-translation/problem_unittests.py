@@ -28,45 +28,50 @@ def test_text_to_ids(text_to_ids):
         'target_id_text has wrong length, it should be {}.'.format(len(test_target_text.split('\n')))
 
     target_not_iter = [type(x) for x in test_source_id_seq if not isinstance(x, collections.Iterable)]
-    assert not target_not_iter,\
-        'Element in source_id_text is not iteratable.  Found type {}'.format(target_not_iter[0])
+    assert (
+        not target_not_iter
+    ), f'Element in source_id_text is not iteratable.  Found type {target_not_iter[0]}'
     target_not_iter = [type(x) for x in test_target_id_seq if not isinstance(x, collections.Iterable)]
-    assert not target_not_iter, \
-        'Element in target_id_text is not iteratable.  Found type {}'.format(target_not_iter[0])
+    assert (
+        not target_not_iter
+    ), f'Element in target_id_text is not iteratable.  Found type {target_not_iter[0]}'
 
     source_changed_length = [(words, word_ids)
                              for words, word_ids in zip(test_source_text.split('\n'), test_source_id_seq)
                              if len(words.split()) != len(word_ids)]
-    assert not source_changed_length,\
-        'Source text changed in size from {} word(s) to {} id(s): {}'.format(
-            len(source_changed_length[0][0].split()), len(source_changed_length[0][1]), source_changed_length[0][1])
+    assert (
+        not source_changed_length
+    ), f'Source text changed in size from {len(source_changed_length[0][0].split())} word(s) to {len(source_changed_length[0][1])} id(s): {source_changed_length[0][1]}'
 
     target_missing_end = [word_ids for word_ids in test_target_id_seq if word_ids[-1] != target_vocab_to_int['<EOS>']]
-    assert not target_missing_end,\
-        'Missing <EOS> id at the end of {}'.format(target_missing_end[0])
+    assert (
+        not target_missing_end
+    ), f'Missing <EOS> id at the end of {target_missing_end[0]}'
 
     target_bad_size = [(words.split(), word_ids)
                        for words, word_ids in zip(test_target_text.split('\n'), test_target_id_seq)
                        if len(word_ids) != len(words.split()) + 1]
-    assert not target_bad_size,\
-        'Target text incorrect size.  {} should be length {}'.format(
-            target_bad_size[0][1], len(target_bad_size[0][0]) + 1)
+    assert (
+        not target_bad_size
+    ), f'Target text incorrect size.  {target_bad_size[0][1]} should be length {len(target_bad_size[0][0]) + 1}'
 
     source_bad_id = [(word, word_id)
                      for word, word_id in zip(
                         [word for sentence in test_source_text.split('\n') for word in sentence.split()],
                         itertools.chain.from_iterable(test_source_id_seq))
                      if source_vocab_to_int[word] != word_id]
-    assert not source_bad_id,\
-        'Source word incorrectly converted from {} to id {}.'.format(source_bad_id[0][0], source_bad_id[0][1])
+    assert (
+        not source_bad_id
+    ), f'Source word incorrectly converted from {source_bad_id[0][0]} to id {source_bad_id[0][1]}.'
 
     target_bad_id = [(word, word_id)
                      for word, word_id in zip(
                         [word for sentence in test_target_text.split('\n') for word in sentence.split()],
                         [word_id for word_ids in test_target_id_seq for word_id in word_ids[:-1]])
                      if target_vocab_to_int[word] != word_id]
-    assert not target_bad_id,\
-        'Target word incorrectly converted from {} to id {}.'.format(target_bad_id[0][0], target_bad_id[0][1])
+    assert (
+        not target_bad_id
+    ), f'Target word incorrectly converted from {target_bad_id[0][0]} to id {target_bad_id[0][1]}.'
 
     _print_success_message()
 
@@ -92,14 +97,18 @@ def test_model_inputs(model_inputs):
             'Source Sequence Length is not a Placeholder.'
 
         # Check name
-        assert input_data.name == 'input:0',\
-            'Input has bad name.  Found name {}'.format(input_data.name)
-        assert target_sequence_length.name == 'target_sequence_length:0',\
-            'Target Sequence Length has bad name.  Found name {}'.format(target_sequence_length.name)
-        assert source_sequence_length.name == 'source_sequence_length:0',\
-            'Source Sequence Length has bad name.  Found name {}'.format(source_sequence_length.name)
-        assert keep_prob.name == 'keep_prob:0', \
-            'Keep Probability has bad name.  Found name {}'.format(keep_prob.name)
+        assert (
+            input_data.name == 'input:0'
+        ), f'Input has bad name.  Found name {input_data.name}'
+        assert (
+            target_sequence_length.name == 'target_sequence_length:0'
+        ), f'Target Sequence Length has bad name.  Found name {target_sequence_length.name}'
+        assert (
+            source_sequence_length.name == 'source_sequence_length:0'
+        ), f'Source Sequence Length has bad name.  Found name {source_sequence_length.name}'
+        assert (
+            keep_prob.name == 'keep_prob:0'
+        ), f'Keep Probability has bad name.  Found name {keep_prob.name}'
 
         assert tf.assert_rank(input_data, 2, message='Input data has wrong rank')
         assert tf.assert_rank(targets, 2, message='Targets has wrong rank')
@@ -133,19 +142,18 @@ def test_encoding_layer(encoding_layer):
                    encoding_embedding_size)
 
 
-        assert len(states) == num_layers,\
-            'Found {} state(s). It should be {} states.'.format(len(states), num_layers)
+        assert (
+            len(states) == num_layers
+        ), f'Found {len(states)} state(s). It should be {num_layers} states.'
 
         bad_types = [type(state) for state in states if not isinstance(state, tf.contrib.rnn.LSTMStateTuple)]
-        assert not bad_types,\
-            'Found wrong type: {}'.format(bad_types[0])
+        assert not bad_types, f'Found wrong type: {bad_types[0]}'
 
         bad_shapes = [state_tensor.get_shape()
                       for state in states
                       for state_tensor in state
                       if state_tensor.get_shape().as_list() not in [[None, rnn_size], [batch_size, rnn_size]]]
-        assert not bad_shapes,\
-            'Found wrong shape: {}'.format(bad_shapes[0])
+        assert not bad_shapes, f'Found wrong shape: {bad_shapes[0]}'
 
     _print_success_message()
 
@@ -188,15 +196,22 @@ def test_decoding_layer(decoding_layer):
 
 
 
-        assert isinstance(train_decoder_output, tf.contrib.seq2seq.BasicDecoderOutput),\
-            'Found wrong type: {}'.format(type(train_decoder_output))
-        assert isinstance(infer_logits_output, tf.contrib.seq2seq.BasicDecoderOutput),\
-            'Found wrong type: {}'.format(type(infer_logits_output))
+        assert isinstance(
+            train_decoder_output, tf.contrib.seq2seq.BasicDecoderOutput
+        ), f'Found wrong type: {type(train_decoder_output)}'
+        assert isinstance(
+            infer_logits_output, tf.contrib.seq2seq.BasicDecoderOutput
+        ), f'Found wrong type: {type(infer_logits_output)}'
 
-        assert train_decoder_output.rnn_output.get_shape().as_list() == [batch_size, None, vocab_size], \
-            'Wrong shape returned.  Found {}'.format(train_decoder_output.rnn_output.get_shape())
-        assert infer_logits_output.sample_id.get_shape().as_list() == [batch_size, None], \
-             'Wrong shape returned.  Found {}'.format(infer_logits_output.sample_id.get_shape())
+        assert train_decoder_output.rnn_output.get_shape().as_list() == [
+            batch_size,
+            None,
+            vocab_size,
+        ], f'Wrong shape returned.  Found {train_decoder_output.rnn_output.get_shape()}'
+        assert infer_logits_output.sample_id.get_shape().as_list() == [
+            batch_size,
+            None,
+        ], f'Wrong shape returned.  Found {infer_logits_output.sample_id.get_shape()}'
 
 
 
@@ -247,15 +262,22 @@ def test_seq2seq_model(seq2seq_model):
         # input_data, target_data, keep_prob, batch_size, sequence_length,
         # 200, target_vocab_size, 64, 80, rnn_size, num_layers, target_vocab_to_int)
 
-        assert isinstance(train_decoder_output, tf.contrib.seq2seq.BasicDecoderOutput),\
-            'Found wrong type: {}'.format(type(train_decoder_output))
-        assert isinstance(infer_logits_output, tf.contrib.seq2seq.BasicDecoderOutput),\
-            'Found wrong type: {}'.format(type(infer_logits_output))
+        assert isinstance(
+            train_decoder_output, tf.contrib.seq2seq.BasicDecoderOutput
+        ), f'Found wrong type: {type(train_decoder_output)}'
+        assert isinstance(
+            infer_logits_output, tf.contrib.seq2seq.BasicDecoderOutput
+        ), f'Found wrong type: {type(infer_logits_output)}'
 
-        assert train_decoder_output.rnn_output.get_shape().as_list() == [batch_size, None, vocab_size], \
-            'Wrong shape returned.  Found {}'.format(train_decoder_output.rnn_output.get_shape())
-        assert infer_logits_output.sample_id.get_shape().as_list() == [batch_size, None], \
-             'Wrong shape returned.  Found {}'.format(infer_logits_output.sample_id.get_shape())
+        assert train_decoder_output.rnn_output.get_shape().as_list() == [
+            batch_size,
+            None,
+            vocab_size,
+        ], f'Wrong shape returned.  Found {train_decoder_output.rnn_output.get_shape()}'
+        assert infer_logits_output.sample_id.get_shape().as_list() == [
+            batch_size,
+            None,
+        ], f'Wrong shape returned.  Found {infer_logits_output.sample_id.get_shape()}'
 
     _print_success_message()
 
@@ -266,14 +288,14 @@ def test_sentence_to_seq(sentence_to_seq):
 
     output = sentence_to_seq(sentence, vocab_to_int)
 
-    assert len(output) == 5,\
-        'Wrong length. Found a length of {}'.format(len(output))
+    assert len(output) == 5, f'Wrong length. Found a length of {len(output)}'
 
     assert output[3] == 2,\
         'Missing <UNK> id.'
 
-    assert np.array_equal(output, [3, 6, 5, 2, 4]),\
-        'Incorrect ouput. Found {}'.format(output)
+    assert np.array_equal(
+        output, [3, 6, 5, 2, 4]
+    ), f'Incorrect ouput. Found {output}'
 
     _print_success_message()
 
@@ -286,8 +308,10 @@ def test_process_encoding_input(process_encoding_input):
         target_data = tf.placeholder(tf.int32, [batch_size, seq_length])
         dec_input = process_encoding_input(target_data, target_vocab_to_int, batch_size)
 
-        assert dec_input.get_shape() == (batch_size, seq_length),\
-            'Wrong shape returned.  Found {}'.format(dec_input.get_shape())
+        assert dec_input.get_shape() == (
+            batch_size,
+            seq_length,
+        ), f'Wrong shape returned.  Found {dec_input.get_shape()}'
 
         test_target_data = [[10, 20, 30], [40, 18, 23]]
         with tf.Session() as sess:
@@ -318,7 +342,7 @@ def test_decoding_layer_train(decoding_layer_train):
             max_target_sequence_length = tf.reduce_max(target_sequence_length_p, name='max_target_len')
 
             for layer in range(num_layers):
-                with tf.variable_scope('decoder_{}'.format(layer)):
+                with tf.variable_scope(f'decoder_{layer}'):
                     lstm = tf.contrib.rnn.LSTMCell(rnn_size,
                                                    initializer=tf.random_uniform_initializer(-0.1, 0.1, seed=2))
                     dec_cell = tf.contrib.rnn.DropoutWrapper(lstm,
@@ -345,11 +369,15 @@ def test_decoding_layer_train(decoding_layer_train):
             #                      decoding_scope, output_fn, keep_prob)
 
 
-            assert isinstance(train_decoder_output, tf.contrib.seq2seq.BasicDecoderOutput),\
-                'Found wrong type: {}'.format(type(train_decoder_output))
+            assert isinstance(
+                train_decoder_output, tf.contrib.seq2seq.BasicDecoderOutput
+            ), f'Found wrong type: {type(train_decoder_output)}'
 
-            assert train_decoder_output.rnn_output.get_shape().as_list() == [batch_size, None, vocab_size], \
-                'Wrong shape returned.  Found {}'.format(train_decoder_output.rnn_output.get_shape())
+            assert train_decoder_output.rnn_output.get_shape().as_list() == [
+                batch_size,
+                None,
+                vocab_size,
+            ], f'Wrong shape returned.  Found {train_decoder_output.rnn_output.get_shape()}'
 
     _print_success_message()
 
@@ -373,7 +401,7 @@ def test_decoding_layer_infer(decoding_layer_infer):
             max_target_sequence_length = tf.reduce_max(target_sequence_length_p, name='max_target_len')
 
             for layer in range(num_layers):
-                with tf.variable_scope('decoder_{}'.format(layer)):
+                with tf.variable_scope(f'decoder_{layer}'):
                     lstm = tf.contrib.rnn.LSTMCell(rnn_size,
                                                    initializer=tf.random_uniform_initializer(-0.1, 0.1, seed=2))
                     dec_cell = tf.contrib.rnn.DropoutWrapper(lstm,
@@ -404,10 +432,13 @@ def test_decoding_layer_infer(decoding_layer_infer):
             #                     sequence_length, vocab_size, decoding_scope, output_fn, keep_prob)
 
 
-            assert isinstance(infer_logits_output, tf.contrib.seq2seq.BasicDecoderOutput),\
-                'Found wrong type: {}'.format(type(infer_logits_output))
+            assert isinstance(
+                infer_logits_output, tf.contrib.seq2seq.BasicDecoderOutput
+            ), f'Found wrong type: {type(infer_logits_output)}'
 
-            assert infer_logits_output.sample_id.get_shape().as_list() == [batch_size, None], \
-                 'Wrong shape returned.  Found {}'.format(infer_logits_output.sample_id.get_shape())
+            assert infer_logits_output.sample_id.get_shape().as_list() == [
+                batch_size,
+                None,
+            ], f'Wrong shape returned.  Found {infer_logits_output.sample_id.get_shape()}'
 
     _print_success_message()

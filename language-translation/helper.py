@@ -94,6 +94,6 @@ def pad_sentence_batch(sentence_batch):
     """
     Pad sentence with <PAD> id
     """
-    max_sentence = max([len(sentence) for sentence in sentence_batch])
+    max_sentence = max(len(sentence) for sentence in sentence_batch)
     return [sentence + [CODES['<PAD>']] * (max_sentence - len(sentence))
             for sentence in sentence_batch]
