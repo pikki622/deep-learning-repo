@@ -29,7 +29,7 @@ def _unzip(save_path, _, database_name, data_path):
     :param data_path: Path to extract to
     :param _: HACK - Used to have to same interface as _ungzip
     """
-    print('Extracting {}...'.format(database_name))
+    print(f'Extracting {database_name}...')
     with zipfile.ZipFile(save_path) as zf:
         zf.extractall(data_path)
 
@@ -47,7 +47,7 @@ def _ungzip(save_path, extract_path, database_name, _):
         with gzip.GzipFile(fileobj=f) as bytestream:
             magic = _read32(bytestream)
             if magic != 2051:
-                raise ValueError('Invalid magic number {} in file: {}'.format(magic, f.name))
+                raise ValueError(f'Invalid magic number {magic} in file: {f.name}')
             num_images = _read32(bytestream)
             rows = _read32(bytestream)
             cols = _read32(bytestream)
@@ -56,9 +56,10 @@ def _ungzip(save_path, extract_path, database_name, _):
             data = data.reshape(num_images, rows, cols)
 
     # Save data to extract_path
-    for image_i, image in enumerate(
-            tqdm(data, unit='File', unit_scale=True, miniters=1, desc='Extracting {}'.format(database_name))):
-        Image.fromarray(image, 'L').save(os.path.join(extract_path, 'image_{}.jpg'.format(image_i)))
+    for image_i, image in enumerate(tqdm(data, unit='File', unit_scale=True, miniters=1, desc=f'Extracting {database_name}')):
+        Image.fromarray(image, 'L').save(
+            os.path.join(extract_path, f'image_{image_i}.jpg')
+        )
 
 
 def get_image(image_path, width, height, mode):
@@ -146,21 +147,22 @@ def download_extract(database_name, data_path):
         extract_fn = _ungzip
 
     if os.path.exists(extract_path):
-        print('Found {} Data'.format(database_name))
+        print(f'Found {database_name} Data')
         return
 
     if not os.path.exists(data_path):
         os.makedirs(data_path)
 
     if not os.path.exists(save_path):
-        with DLProgress(unit='B', unit_scale=True, miniters=1, desc='Downloading {}'.format(database_name)) as pbar:
+        with DLProgress(unit='B', unit_scale=True, miniters=1, desc=f'Downloading {database_name}') as pbar:
             urlretrieve(
                 url,
                 save_path,
                 pbar.hook)
 
-    assert hashlib.md5(open(save_path, 'rb').read()).hexdigest() == hash_code, \
-        '{} file is corrupted.  Remove the file and try again.'.format(save_path)
+    assert (
+        hashlib.md5(open(save_path, 'rb').read()).hexdigest() == hash_code
+    ), f'{save_path} file is corrupted.  Remove the file and try again.'
 
     os.makedirs(extract_path)
     try:

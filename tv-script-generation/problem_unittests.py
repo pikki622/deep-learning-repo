@@ -31,31 +31,31 @@ def test_create_lookup_tables(create_lookup_tables):
             'int_to_vocab is not a dictionary.'
 
         # Compare lengths of dicts
-        assert len(vocab_to_int) == len(int_to_vocab),\
-            'Length of vocab_to_int and int_to_vocab don\'t match. ' \
-            'vocab_to_int is length {}. int_to_vocab is length {}'.format(len(vocab_to_int), len(int_to_vocab))
+        assert len(vocab_to_int) == len(
+            int_to_vocab
+        ), f"Length of vocab_to_int and int_to_vocab don\'t match. vocab_to_int is length {len(vocab_to_int)}. int_to_vocab is length {len(int_to_vocab)}"
 
         # Make sure the dicts have the same words
         vocab_to_int_word_set = set(vocab_to_int.keys())
         int_to_vocab_word_set = set(int_to_vocab.values())
 
-        assert not (vocab_to_int_word_set - int_to_vocab_word_set),\
-            'vocab_to_int and int_to_vocab don\'t have the same words.' \
-            '{} found in vocab_to_int, but not in int_to_vocab'.format(vocab_to_int_word_set - int_to_vocab_word_set)
-        assert not (int_to_vocab_word_set - vocab_to_int_word_set),\
-            'vocab_to_int and int_to_vocab don\'t have the same words.' \
-            '{} found in int_to_vocab, but not in vocab_to_int'.format(int_to_vocab_word_set - vocab_to_int_word_set)
+        assert not (
+            vocab_to_int_word_set - int_to_vocab_word_set
+        ), f"vocab_to_int and int_to_vocab don\'t have the same words.{vocab_to_int_word_set - int_to_vocab_word_set} found in vocab_to_int, but not in int_to_vocab"
+        assert not (
+            int_to_vocab_word_set - vocab_to_int_word_set
+        ), f"vocab_to_int and int_to_vocab don\'t have the same words.{int_to_vocab_word_set - vocab_to_int_word_set} found in int_to_vocab, but not in vocab_to_int"
 
         # Make sure the dicts have the same word ids
         vocab_to_int_word_id_set = set(vocab_to_int.values())
         int_to_vocab_word_id_set = set(int_to_vocab.keys())
 
-        assert not (vocab_to_int_word_id_set - int_to_vocab_word_id_set),\
-            'vocab_to_int and int_to_vocab don\'t contain the same word ids.' \
-            '{} found in vocab_to_int, but not in int_to_vocab'.format(vocab_to_int_word_id_set - int_to_vocab_word_id_set)
-        assert not (int_to_vocab_word_id_set - vocab_to_int_word_id_set),\
-            'vocab_to_int and int_to_vocab don\'t contain the same word ids.' \
-            '{} found in int_to_vocab, but not in vocab_to_int'.format(int_to_vocab_word_id_set - vocab_to_int_word_id_set)
+        assert not (
+            vocab_to_int_word_id_set - int_to_vocab_word_id_set
+        ), f"vocab_to_int and int_to_vocab don\'t contain the same word ids.{vocab_to_int_word_id_set - int_to_vocab_word_id_set} found in vocab_to_int, but not in int_to_vocab"
+        assert not (
+            int_to_vocab_word_id_set - vocab_to_int_word_id_set
+        ), f"vocab_to_int and int_to_vocab don\'t contain the same word ids.{int_to_vocab_word_id_set - vocab_to_int_word_id_set} found in int_to_vocab, but not in vocab_to_int"
 
         # Make sure the dicts make the same lookup
         missmatches = [(word, id, id, int_to_vocab[id]) for word, id in vocab_to_int.items() if int_to_vocab[id] != word]
@@ -65,8 +65,9 @@ def test_create_lookup_tables(create_lookup_tables):
                 len(missmatches),
                 *missmatches[0])
 
-        assert len(vocab_to_int) > len(set(test_text))/2,\
-            'The length of vocab seems too small.  Found a length of {}'.format(len(vocab_to_int))
+        assert (
+            len(vocab_to_int) > len(set(test_text)) / 2
+        ), f'The length of vocab seems too small.  Found a length of {len(vocab_to_int)}'
 
     _print_success_message()
 
@@ -83,58 +84,65 @@ def test_get_batches(get_batches):
             'Batches is not a Numpy array'
 
         # Check shape
-        assert batches.shape == (7, 2, 128, 5),\
-            'Batches returned wrong shape.  Found {}'.format(batches.shape)
+        assert batches.shape == (
+            7,
+            2,
+            128,
+            5,
+        ), f'Batches returned wrong shape.  Found {batches.shape}'
 
         for x in range(batches.shape[2]):
-            assert np.array_equal(batches[0,0,x], np.array(range(x * 35, x * 35 + batches.shape[3]))),\
-                'Batches returned wrong contents. For example, input sequence {} in the first batch was {}'.format(x, batches[0,0,x])
-            assert np.array_equal(batches[0,1,x], np.array(range(x * 35 + 1, x * 35 + 1 + batches.shape[3]))),\
-                'Batches returned wrong contents. For example, target sequence {} in the first batch was {}'.format(x, batches[0,1,x])
+            assert np.array_equal(
+                batches[0, 0, x],
+                np.array(range(x * 35, x * 35 + batches.shape[3])),
+            ), f'Batches returned wrong contents. For example, input sequence {x} in the first batch was {batches[0, 0, x]}'
+            assert np.array_equal(
+                batches[0, 1, x],
+                np.array(range(x * 35 + 1, x * 35 + 1 + batches.shape[3])),
+            ), f'Batches returned wrong contents. For example, target sequence {x} in the first batch was {batches[0, 1, x]}'
 
 
         last_seq_target = (test_batch_size-1) * 35 + 31
         last_seq = np.array(range(last_seq_target, last_seq_target+ batches.shape[3]))
         last_seq[-1] = batches[0,0,0,0]
 
-        assert np.array_equal(batches[-1,1,-1], last_seq),\
-            'The last target of the last batch should be the first input of the first batch. Found {} but expected {}'.format(batches[-1,1,-1], last_seq)
+        assert np.array_equal(
+            batches[-1, 1, -1], last_seq
+        ), f'The last target of the last batch should be the first input of the first batch. Found {batches[-1, 1, -1]} but expected {last_seq}'
 
     _print_success_message()
 
 
 def test_tokenize(token_lookup):
     with tf.Graph().as_default():
-        symbols = set(['.', ',', '"', ';', '!', '?', '(', ')', '--', '\n'])
+        symbols = {'.', ',', '"', ';', '!', '?', '(', ')', '--', '\n'}
         token_dict = token_lookup()
 
         # Check type
-        assert isinstance(token_dict, dict), \
-            'Returned type is {}.'.format(type(token_dict))
+        assert isinstance(token_dict, dict), f'Returned type is {type(token_dict)}.'
 
         # Check symbols
         missing_symbols = symbols - set(token_dict.keys())
         unknown_symbols = set(token_dict.keys()) - symbols
 
-        assert not missing_symbols, \
-            'Missing symbols: {}'.format(missing_symbols)
-        assert not unknown_symbols, \
-            'Unknown symbols: {}'.format(unknown_symbols)
+        assert not missing_symbols, f'Missing symbols: {missing_symbols}'
+        assert not unknown_symbols, f'Unknown symbols: {unknown_symbols}'
 
         # Check values type
         bad_value_type = [type(val) for val in token_dict.values() if not isinstance(val, str)]
 
-        assert not bad_value_type,\
-            'Found token as {} type.'.format(bad_value_type[0])
+        assert not bad_value_type, f'Found token as {bad_value_type[0]} type.'
 
         # Check for spaces
         key_has_spaces = [k for k in token_dict.keys() if ' ' in k]
         val_has_spaces = [val for val in token_dict.values() if ' ' in val]
 
-        assert not key_has_spaces,\
-            'The key "{}" includes spaces. Remove spaces from keys and values'.format(key_has_spaces[0])
-        assert not val_has_spaces,\
-            'The value "{}" includes spaces. Remove spaces from keys and values'.format(val_has_spaces[0])
+        assert (
+            not key_has_spaces
+        ), f'The key "{key_has_spaces[0]}" includes spaces. Remove spaces from keys and values'
+        assert (
+            not val_has_spaces
+        ), f'The value "{val_has_spaces[0]}" includes spaces. Remove spaces from keys and values'
 
         # Check for symbols in values
         symbol_val = ()
@@ -162,20 +170,22 @@ def test_get_inputs(get_inputs):
             'Learning Rate not a Placeholder.'
 
         # Check name
-        assert input_data.name == 'input:0',\
-            'Input has bad name.  Found name {}'.format(input_data.name)
+        assert (
+            input_data.name == 'input:0'
+        ), f'Input has bad name.  Found name {input_data.name}'
 
         # Check rank
-        input_rank = 0 if input_data.get_shape() == None else len(input_data.get_shape())
-        targets_rank = 0 if targets.get_shape() == None else len(targets.get_shape())
-        lr_rank = 0 if lr.get_shape() == None else len(lr.get_shape())
+        input_rank = (
+            0
+            if input_data.get_shape() is None
+            else len(input_data.get_shape())
+        )
+        targets_rank = 0 if targets.get_shape() is None else len(targets.get_shape())
+        lr_rank = 0 if lr.get_shape() is None else len(lr.get_shape())
 
-        assert input_rank == 2,\
-            'Input has wrong rank.  Rank {} found.'.format(input_rank)
-        assert targets_rank == 2,\
-            'Targets has wrong rank. Rank {} found.'.format(targets_rank)
-        assert lr_rank == 0,\
-            'Learning Rate has wrong rank. Rank {} found'.format(lr_rank)
+        assert input_rank == 2, f'Input has wrong rank.  Rank {input_rank} found.'
+        assert targets_rank == 2, f'Targets has wrong rank. Rank {targets_rank} found.'
+        assert lr_rank == 0, f'Learning Rate has wrong rank. Rank {lr_rank} found'
 
     _print_success_message()
 
@@ -188,16 +198,18 @@ def test_get_init_cell(get_init_cell):
         cell, init_state = get_init_cell(test_batch_size_ph, test_rnn_size)
 
         # Check type
-        assert isinstance(cell, tf.contrib.rnn.MultiRNNCell),\
-            'Cell is wrong type.  Found {} type'.format(type(cell))
+        assert isinstance(
+            cell, tf.contrib.rnn.MultiRNNCell
+        ), f'Cell is wrong type.  Found {type(cell)} type'
 
         # Check for name attribute
         assert hasattr(init_state, 'name'),\
             'Initial state doesn\'t have the "name" attribute.  Try using `tf.identity` to set the name.'
 
         # Check name
-        assert init_state.name == 'initial_state:0',\
-            'Initial state doesn\'t have the correct name. Found the name {}'.format(init_state.name)
+        assert (
+            init_state.name == 'initial_state:0'
+        ), f"Initial state doesn\'t have the correct name. Found the name {init_state.name}"
 
     _print_success_message()
 
@@ -212,8 +224,7 @@ def test_get_embed(get_embed):
         embed = get_embed(test_input_data, test_vocab_size, test_embed_dim)
 
         # Check shape
-        assert embed.shape == embed_shape,\
-            'Wrong shape.  Found shape {}'.format(embed.shape)
+        assert embed.shape == embed_shape, f'Wrong shape.  Found shape {embed.shape}'
 
     _print_success_message()
 
@@ -230,14 +241,22 @@ def test_build_rnn(build_rnn):
         # Check name
         assert hasattr(final_state, 'name'),\
             'Final state doesn\'t have the "name" attribute.  Try using `tf.identity` to set the name.'
-        assert final_state.name == 'final_state:0',\
-            'Final state doesn\'t have the correct name. Found the name {}'.format(final_state.name)
+        assert (
+            final_state.name == 'final_state:0'
+        ), f"Final state doesn\'t have the correct name. Found the name {final_state.name}"
 
         # Check shape
-        assert outputs.get_shape().as_list() == [None, None, test_rnn_size],\
-            'Outputs has wrong shape.  Found shape {}'.format(outputs.get_shape())
-        assert final_state.get_shape().as_list() == [test_rnn_layer_size, 2, None, test_rnn_size],\
-            'Final state wrong shape.  Found shape {}'.format(final_state.get_shape())
+        assert outputs.get_shape().as_list() == [
+            None,
+            None,
+            test_rnn_size,
+        ], f'Outputs has wrong shape.  Found shape {outputs.get_shape()}'
+        assert final_state.get_shape().as_list() == [
+            test_rnn_layer_size,
+            2,
+            None,
+            test_rnn_size,
+        ], f'Final state wrong shape.  Found shape {final_state.get_shape()}'
 
     _print_success_message()
 
@@ -257,14 +276,20 @@ def test_build_nn(build_nn):
         # Check name
         assert hasattr(final_state, 'name'), \
             'Final state doesn\'t have the "name" attribute.  Are you using build_rnn?'
-        assert final_state.name == 'final_state:0', \
-            'Final state doesn\'t have the correct name. Found the name {}. Are you using build_rnn?'.format(final_state.name)
+        assert (
+            final_state.name == 'final_state:0'
+        ), f"Final state doesn\'t have the correct name. Found the name {final_state.name}. Are you using build_rnn?"
 
         # Check Shape
-        assert logits.get_shape().as_list() == test_input_data_shape + [test_vocab_size], \
-            'Outputs has wrong shape.  Found shape {}'.format(logits.get_shape())
-        assert final_state.get_shape().as_list() == [test_rnn_layer_size, 2, None, test_rnn_size], \
-            'Final state wrong shape.  Found shape {}'.format(final_state.get_shape())
+        assert logits.get_shape().as_list() == test_input_data_shape + [
+            test_vocab_size
+        ], f'Outputs has wrong shape.  Found shape {logits.get_shape()}'
+        assert final_state.get_shape().as_list() == [
+            test_rnn_layer_size,
+            2,
+            None,
+            test_rnn_size,
+        ], f'Final state wrong shape.  Found shape {final_state.get_shape()}'
 
     _print_success_message()
 
@@ -295,13 +320,14 @@ def test_get_tensors(get_tensors):
 def test_pick_word(pick_word):
     with tf.Graph().as_default():
         test_probabilities = np.array([0.1, 0.8, 0.05, 0.05])
-        test_int_to_vocab = {word_i: word for word_i, word in enumerate(['this', 'is', 'a', 'test'])}
+        test_int_to_vocab = dict(enumerate(['this', 'is', 'a', 'test']))
 
         pred_word = pick_word(test_probabilities, test_int_to_vocab)
 
         # Check type
-        assert isinstance(pred_word, str),\
-            'Predicted word is wrong type. Found {} type.'.format(type(pred_word))
+        assert isinstance(
+            pred_word, str
+        ), f'Predicted word is wrong type. Found {type(pred_word)} type.'
 
         # Check word is from vocab
         assert pred_word in test_int_to_vocab.values(),\

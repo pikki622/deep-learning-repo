@@ -56,8 +56,8 @@ def _get_loss_acc(dataset, weights):
         batch_count = int((dataset.train.num_examples / batch_size))
 
         # The training cycle
-        for epoch_i in range(epochs):
-            for batch_i in range(batch_count):
+        for _ in range(epochs):
+            for _ in range(batch_count):
                 batch_features, batch_labels = dataset.train.next_batch(batch_size)
 
                 # Run optimizer and get loss
